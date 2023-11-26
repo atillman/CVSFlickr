@@ -18,15 +18,17 @@ class FlickrDataSource {
             let imageURL = media["m"] as? String,
             let image = URL(string: imageURL),
             let dateString = item["date_taken"] as? String,
-            let date = isoDateFormatter.date(from: dateString)
-      else {     
+            let date = isoDateFormatter.date(from: dateString),
+            let description = item["description"] as? String,
+            let widthAndHeight = extractWidthAndHeight(from: description)
+      else {
         return nil
       }
       return .init(
         image: image, 
         title: item["title"] as? String ?? "",
-        height: 0,
-        width: 0,
+        height: widthAndHeight.height ?? 0,
+        width: widthAndHeight.width ?? 0,
         date: date
       )
     }
@@ -62,6 +64,35 @@ fileprivate func jsonError(
   description: String = "JSON parsing error"
 ) -> NSError {
   return NSError(domain: domain, code: 0, userInfo: [NSLocalizedDescriptionKey: description])
+}
+
+fileprivate func extractWidthAndHeight(from htmlString: String) -> (width: Int?, height: Int?)? {
+  let widthPattern = "width=\"(\\d+)\""
+  let heightPattern = "height=\"(\\d+)\""
+
+  do {
+    let widthRegex = try NSRegularExpression(pattern: widthPattern)
+    let heightRegex = try NSRegularExpression(pattern: heightPattern)
+
+    let widthMatches = widthRegex.matches(in: htmlString, range: NSRange(htmlString.startIndex..., in: htmlString))
+    let heightMatches = heightRegex.matches(in: htmlString, range: NSRange(htmlString.startIndex..., in: htmlString))
+
+    if let widthMatch = widthMatches.first, let heightMatch = heightMatches.first {
+      if let widthRange = Range(widthMatch.range(at: 1), in: htmlString),
+         let heightRange = Range(heightMatch.range(at: 1), in: htmlString) {
+        
+        let widthString = String(htmlString[widthRange])
+        let heightString = String(htmlString[heightRange])
+        
+
+        return (width: Int(widthString), height: Int(heightString))
+      }
+    }
+  } catch {
+    print("Error geting heigh and widge \(error.localizedDescription)")
+  }
+  
+  return nil
 }
 
 
