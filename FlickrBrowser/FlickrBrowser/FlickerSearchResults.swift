@@ -13,9 +13,11 @@ struct FlickerSearchResults: View {
   
   var body: some View {
     ScrollView {
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))]) {
+      LazyVStack {
         ForEach(cards) { card in
-          AsyncImage(url: card.thumbnail).sheet(item: $selectedCard, content: FlickrDetails.init(card: ))
+          AsyncImage(url: card.image).sheet(item: $selectedCard, content: FlickrDetails.init(card: )).onTapGesture {
+            selectedCard = card
+          }
         }
       }
     }
@@ -26,16 +28,32 @@ struct FlickrDetails: View {
   let card: FlickrCard
   
   var body: some View {
-    Text("Title: \(card.title)")
+    VStack(alignment: .leading, spacing: 4) {
+      HStack {
+        Spacer()
+        AsyncImage(url: card.image)
+        Spacer()
+      }.padding(.bottom, 10)
+      Divider()
+      Text("Title: \(card.title)")
+      Text("Height: \(card.height), Width: \(card.width)")
+      Text("Posted: \(card.relateiveDate)")
+      Spacer()
+    }.padding(.horizontal, 16).padding(.vertical, 20)
   }
 }
 
 struct FlickrCard: Identifiable {
   let id: UUID = .init()
+  let image: URL
   let title: String
   let height: Int
   let width: Int
-  let thumbnail: URL
-  let image: URL
   let date: Date
+  
+  var relateiveDate: String {
+    relativeDateFormatter.localizedString(for: date, relativeTo: .now)
+  }
 }
+
+fileprivate let relativeDateFormatter = RelativeDateTimeFormatter()

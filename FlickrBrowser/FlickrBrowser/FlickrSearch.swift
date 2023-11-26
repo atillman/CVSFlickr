@@ -16,9 +16,9 @@ struct FlickrSearch: View {
       case .empty:
         Text("Enter search text browse Flickr")
       case .searching:
-        Text("Spinner")
-      case .results(let text):
-        Text("Searching for \(text)")
+        ProgressView().progressViewStyle(.circular)
+      case .results(let cards):
+        FlickerSearchResults(cards: cards)
       case .error(let error):
         Text("Error searching; \(error.localizedDescription)").foregroundColor(.red)
       }
@@ -39,22 +39,31 @@ extension FlickrSearch.State {
   enum Status {
     case empty
     case searching
-    case results(String)
+    case results([FlickrCard])
     case error(Error)
   }
 }
 
 extension FlickrSearch.State {
-  func search(_ searchText: String) {
-    guard !searchText.isEmpty else {
+  func search(_ searchTerms: String) {
+    guard !searchTerms.isEmpty else {
       status = .empty
       return
     }
     
     status = .searching
-    
-    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-      self.status = .results(searchText)
+        
+    Task {
+      do {
+        await self.updateCards(try await dataSource.searchFlickr(searchTerms))
+      } catch {
+        status = .error(error)
+      }
     }
+  }
+  
+  @MainActor
+  private func updateCards(_ cards: [FlickrCard]) {
+    status = .results(cards)
   }
 }
