@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
   @StateObject var debouncer: TextDebouncer = .init()
+  @StateObject var searchState: FlickrSearch.State = .init()
   @State var text: String = ""
   
   var body: some View {
@@ -27,11 +28,11 @@ struct ContentView: View {
         .cornerRadius(10)
         .padding()
       Divider()
-      Text("The text is: \(text)")
-      Spacer()
+      FlickrSearch(state: searchState)
       
+      Spacer()
     }.padding(.horizontal, 16).onAppear {
-      debouncer.startDebounce(update: updateText(_:))
+      debouncer.startDebounce(update: searchState.search(_:))
     }
   }
   

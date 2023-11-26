@@ -15,7 +15,7 @@ class TextDebouncer: ObservableObject {
   init() {}
   
   func startDebounce(update: @escaping TextDebounceUpdate) {
-    debounceCancel = $text.debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
+    debounceCancel = $text.debounce(for: .milliseconds(600), scheduler: DispatchQueue.main)
       .sink(receiveValue: update)
   }
 }
