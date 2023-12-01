@@ -9,14 +9,13 @@ import SwiftUI
 
 struct FlickerSearchResults: View {
   let cards: [FlickrCard]
-  @State var selectedCard: FlickrCard?
   
   var body: some View {
     ScrollView {
       LazyVStack {
         ForEach(cards) { card in
-          AsyncImage(url: card.image).sheet(item: $selectedCard, content: FlickrDetails.init(card: )).onTapGesture {
-            selectedCard = card
+          NavigationLink(destination: FlickrDetails(card: card)) {
+            AsyncImage(url: card.image)
           }
         }
       }

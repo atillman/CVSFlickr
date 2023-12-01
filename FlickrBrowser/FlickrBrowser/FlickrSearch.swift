@@ -30,6 +30,7 @@ extension FlickrSearch {
   class State: ObservableObject {
     let dataSource: FlickrDataSource = .init()
     @Published var status: Status = .empty
+    private var currentSearch: String?
     
     init() {}
   }
@@ -46,6 +47,11 @@ extension FlickrSearch.State {
 
 extension FlickrSearch.State {
   func search(_ searchTerms: String) {
+    guard searchTerms != currentSearch else {
+      return
+    }
+    currentSearch = searchTerms
+    
     guard !searchTerms.isEmpty else {
       status = .empty
       return

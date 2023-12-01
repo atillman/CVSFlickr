@@ -13,25 +13,18 @@ struct ContentView: View {
   @State var text: String = ""
   
   var body: some View {
-    VStack (spacing: 8) {
-      HStack {
+    NavigationStack {
+      VStack (spacing: 8) {
+        HStack {
+          Spacer()
+          Text("Flicker Browser")
+          Spacer()
+        }
+        Divider()
+        FlickrSearch(state: searchState)
         Spacer()
-        Text("Flicker Browser")
-        Spacer()
-      }
-      Divider()
-      TextField("Search", text: $debouncer.text)
-        .submitLabel(.return)
-        .padding(8)
-        .foregroundColor(.black)
-        .background(Color.gray)
-        .cornerRadius(10)
-        .padding()
-      Divider()
-      FlickrSearch(state: searchState)
-      
-      Spacer()
-    }.padding(.horizontal, 16).onAppear {
+      }.padding(.horizontal, 16)
+    }.searchable(text: $debouncer.text).onAppear {
       debouncer.startDebounce(update: searchState.search(_:))
     }
   }
